@@ -215,16 +215,90 @@ def renderBoard(term: Terminal, board: Board, active_small_boards: List[int]):
         render_small_board(term, (20, 40), board.small_boards[8], 9, 9 in active_small_boards)
 
 
+def get_position_index_from_letter(letter: str) -> int | None:
+    if letter == "a":
+        return 0
+    elif letter == "b":
+        return 1
+    elif letter == "c":
+        return 2
+    elif letter == "d":
+        return 3
+    elif letter == "e":
+        return 4
+    elif letter == "f":
+        return 5
+    elif letter == "g":
+        return 6
+    elif letter == "h":
+        return 7
+    elif letter == "i":
+        return 8
+    else:
+        return None
         
 
 
-def makeMove(board: Board, active_small_boards: List[int], move: str, is_first_user: bool) -> Tuple[Board, List[int]]:
+
+def makeMove(board: Board, active_small_boards: List[int], move: str, is_first_user: bool) -> Tuple[Board | None, List[int] | None]:
     # make the move or fail bc invalid move
+    move_board = safe_int(move[0])
+
+    if move_board == -1:
+        return None, None
+    
+    if move_board not in active_small_boards:
+        return None, None
+    
+    target_small_board = board.small_boards[move_board - 1]
+
+    move_index = get_position_index_from_letter(move[1])
+
+    # invalid move (This should only occur if an invalid char is used for small baord position)
+    if move_index == None:
+        return None, None
+
+    # already exisiting x or o
+    if target_small_board.squares[move_index] != 0:
+        return None, None
+
+    # make the move
+    target_small_board.squares[move_index] = 1 if is_first_user else -1
+
+    # move_index would be the index of the next big board
+    # if big board at move index is finished, make all but the unfinished boards active
+    # else, make only that board active
+
+
+    """
+    make the x on the board
+    calculate new active small baords
+        if target board is finished:
+            make all but the finished boards active
+        else:
+            make only that board the active board
+    make the correct symbol based on is_first_user (x, o)
+    
+    return the new board with the new x + the active small boards
+    """
     new_board = board
     active_small_boards = []
     return new_board, active_small_boards
 
 def checkSmallWin(small_board: SmallBoard):
+    """
+    # This checks whether 3 in a row in the down directions of the board
+    for i in range(3):
+        if small_board[i] == small_board[i + 3] == small_board[i + 6]
+            return True
+    
+    # Check sideways for 3 in a row
+    for i in range(0, 9, 3):
+        if small_board[i] == small_board[i + 1] == small_board[i + 2]
+            return True
+    
+    # Check diagonals
+    """
     pass
 
 def checkWin(board_position: Board):
